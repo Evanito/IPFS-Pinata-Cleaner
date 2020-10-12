@@ -44,9 +44,20 @@ class PinataAPI:
         r = requests.get(url=url, headers=self.headers)
         return r.json()
 
-    def pinList(self):
-        r = self.apiGet("/data/pinList?status=pinned")
-        return r
+    def pinList(self, offset=0):
+        if offset == 0:
+            r = self.apiGet("/data/pinList?status=pinned")
+        else:
+            r = self.apiGet("/data/pinList?status=pinned&pageOffset=%s" % offset)
+        if r["count"] == 1000:  # max allowed on one page
+            print("Need to check next page of pins...")
+            return self.merge_pinList(r, self.pinList(offset=offset+1000))
+        else:
+            return r
+
+    def merge_pinList(self, list1, list2):
+        list1["count"] = list1["count"] + list2["count"]
+        list1["rows"].extend(list2["rows"])
 
     def unpin(self, ipfs_hash):
         url = self.url+"/pinning/unpin/"+ipfs_hash
