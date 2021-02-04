@@ -58,6 +58,7 @@ class PinataAPI:
     def merge_pinList(self, list1, list2):
         list1["count"] = list1["count"] + list2["count"]
         list1["rows"].extend(list2["rows"])
+        return list1
 
     def unpin(self, ipfs_hash):
         url = self.url+"/pinning/unpin/"+ipfs_hash
